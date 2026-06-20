@@ -26,12 +26,15 @@ jobs:
   plan:
     if: |
       github.event_name == 'pull_request' ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'plan')
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.operation != 'destroy')
     name: "Terraform Plan"
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
+    outputs:
+      run_id: ${{ steps.plan-run.outputs.run_id }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,7 +45,7 @@ jobs:
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           directory: ${{ env.CONFIG_DIRECTORY }}
-          speculative: true
+          speculative: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'plan') }}
 
       - name: Create Plan Run
         uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
@@ -50,7 +53,7 @@ jobs:
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           configuration_version: ${{ steps.plan-upload.outputs.configuration_version_id }}
-          plan_only: true
+          plan_only: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'plan') }}
 
       - name: Get Plan Output
         uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.0.0
@@ -94,43 +97,28 @@ jobs:
             });
 
   apply:
+    needs: plan
     if: |
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'apply')
     name: "Terraform Apply"
     runs-on: ubuntu-latest
+    environment: tf-apply
     permissions:
       contents: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Upload Configuration
-        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
-        id: apply-upload
-        with:
-          workspace: ${{ env.TF_WORKSPACE }}
-          directory: ${{ env.CONFIG_DIRECTORY }}
-
-      - name: Create Apply Run
-        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
-        id: apply-run
-        with:
-          workspace: ${{ env.TF_WORKSPACE }}
-          configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
-
       - name: Apply
         uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
-        if: fromJSON(steps.apply-run.outputs.payload).data.attributes.actions.IsConfirmable
         id: apply
         with:
-          run: ${{ steps.apply-run.outputs.run_id }}
+          run: ${{ needs.plan.outputs.run_id }}
           comment: "Apply run triggered from GitHub Actions by ${{ github.actor }} (${{ github.sha }})"
 
   destroy:
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'destroy'
     name: "Terraform Destroy"
     runs-on: ubuntu-latest
+    environment: tf-apply
     permissions:
       contents: read
     steps:
