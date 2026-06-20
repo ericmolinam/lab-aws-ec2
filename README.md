@@ -6,7 +6,7 @@ Authentication to AWS is handled via **OIDC dynamic provider credentials** confi
 
 ---
 
-## Architecture
+## Architecture:
 
 ```
 Terraform Cloud (lab-ec2)
@@ -23,7 +23,7 @@ Terraform Cloud (lab-ec2)
 
 ---
 
-## Prerequisites
+## Prerequisites:
 
 - [Terraform CLI](https://developer.hashicorp.com/terraform/install) >= 1.15
 - [Terraform Cloud](https://app.terraform.io) account with organization `emolinam5`
@@ -32,18 +32,18 @@ Terraform Cloud (lab-ec2)
 
 ---
 
-## Authentication — OIDC Dynamic Provider Credentials
+## Authentication: OIDC dynamic provider credentials:
 
 This project uses Terraform Cloud's native OIDC integration to authenticate to AWS without long-lived credentials. The setup follows the [AWS APN blog guide](https://aws.amazon.com/blogs/apn/simplify-and-secure-terraform-workflows-on-aws-with-dynamic-provider-credentials/).
 
-### 1. Create an IAM OIDC Identity Provider in AWS
+### 1. Create an IAM OIDC Identity Provider in AWS:
 
 | Field        | Value                       |
 |--------------|-----------------------------|
 | Provider URL | `https://app.terraform.io`  |
 | Audience     | `aws.workload.identity`     |
 
-### 2. Create an IAM Role with a trust policy
+### 2. Create an IAM Role with a trust policy:
 
 Attach a trust policy that allows Terraform Cloud to assume the role via the OIDC provider. Scope it to your organization and workspace:
 
@@ -67,7 +67,7 @@ Attach a trust policy that allows Terraform Cloud to assume the role via the OID
 
 Attach the necessary IAM permissions to this role (EC2, S3, IAM key pair).
 
-### 3. Configure Terraform Cloud workspace environment variables
+### 3. Configure Terraform Cloud workspace environment variables:
 
 In the `lab-ec2` workspace, set the following **environment variables** (not Terraform variables):
 
@@ -80,7 +80,7 @@ Terraform Cloud will automatically generate a short-lived OIDC token per run and
 
 ---
 
-## Project Structure
+## Project structure:
 
 ```
 terraform/
@@ -94,7 +94,7 @@ terraform/
 
 ---
 
-## Resources Provisioned
+## Resources provisioned:
 
 | Resource | Description |
 |---|---|
@@ -110,7 +110,7 @@ terraform/
 
 ---
 
-## Variables
+## Variables:
 
 | Name | Description | Default |
 |---|---|---|
@@ -124,7 +124,7 @@ Variables can be overridden in the Terraform Cloud workspace under **Variables >
 
 ---
 
-## Outputs
+## Outputs:
 
 | Name | Description |
 |---|---|
@@ -133,9 +133,9 @@ Variables can be overridden in the Terraform Cloud workspace under **Variables >
 
 ---
 
-## Usage
+## Usage:
 
-### Deploy
+### Deploy:
 
 Runs are triggered automatically in Terraform Cloud on workspace changes. To run manually via CLI:
 
@@ -146,7 +146,7 @@ terraform init
 terraform apply
 ```
 
-### SSH into the instance
+### SSH into the instance:
 
 1. Download the private key from S3:
 
@@ -161,7 +161,7 @@ chmod 400 private_key.pem
 ssh -i private_key.pem ec2-user@$(terraform output -raw public_ip)
 ```
 
-### Destroy
+### Destroy:
 
 ```bash
 terraform destroy
