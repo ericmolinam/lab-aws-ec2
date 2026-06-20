@@ -9,7 +9,7 @@ env:
   TF_CLOUD_ORGANIZATION: "emolinam5"
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
   TF_WORKSPACE: "lab-ec2"
-  CONFIG_DIRECTORY: "./"
+  CONFIG_DIRECTORY: "./terraform"
 
 jobs:
   terraform:
