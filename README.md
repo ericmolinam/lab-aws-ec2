@@ -1,4 +1,4 @@
-# AWS First Steps Lab
+# AWS EC2 Lab
 
 A Terraform lab that provisions an EC2 instance in AWS (`eu-south-2`) with a generated SSH key pair, a security group, and a private S3 bucket to store the private key securely.
 
