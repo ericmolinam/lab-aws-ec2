@@ -2,9 +2,13 @@ name: "👷 Terraform Build & Destroy "
 
 on:
   pull_request:
+    paths:
+      - 'terraform/**'
   push:
     branches:
       - main
+    paths:
+      - 'terraform/**'      
   workflow_dispatch:
     inputs:
       operation:
