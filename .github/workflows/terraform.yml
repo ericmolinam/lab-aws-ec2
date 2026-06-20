@@ -27,7 +27,7 @@ jobs:
     if: |
       github.event_name == 'pull_request' ||
       github.event_name == 'push' ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.operation != 'destroy')
+      github.event_name == 'workflow_dispatch'
     name: "Terraform Plan"
     runs-on: ubuntu-latest
     permissions:
@@ -45,15 +45,16 @@ jobs:
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           directory: ${{ env.CONFIG_DIRECTORY }}
-          speculative: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'plan') }}
+          speculative: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.operation != 'apply') }}
 
       - name: Create Plan Run
-        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.2
         id: plan-run
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           configuration_version: ${{ steps.plan-upload.outputs.configuration_version_id }}
-          plan_only: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'plan') }}
+          plan_only: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.operation != 'apply') }}
+          is_destroy: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'destroy' }}
 
       - name: Get Plan Output
         uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.0.0
