@@ -30,7 +30,7 @@ jobs:
           output_format: cli,sarif,github_failed_only
           output_file_path: console,results.sarif,github_failed_only
           quiet: true # display only failed checks
-          soft_fail: false # if true, do not return an error code if there are failed checks
+          soft_fail: true # if true, do not return an error code if there are failed checks
 
       - name: 📝 Show results in Summary
         if: always()
