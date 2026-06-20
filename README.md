@@ -133,6 +133,42 @@ Variables can be overridden in the Terraform Cloud workspace under **Variables >
 
 ---
 
+## CI/CD Workflow:
+
+The repository includes a single GitHub Actions workflow (`.github/workflows/terraform.yml`) that handles all Terraform operations through Terraform Cloud. It requires one GitHub secret: `TF_API_TOKEN`.
+
+### Triggers and jobs:
+
+| Trigger | `plan` job | `apply` job | `destroy` job |
+|---|---|---|---|
+| Pull request | Speculative plan (preview only) | Skipped | Skipped |
+| Push to `main` | Real plan | Requires approval → applies | Skipped |
+| Manual → `plan` | Speculative plan (preview only) | Skipped | Skipped |
+| Manual → `apply` | Real plan | Requires approval → applies | Skipped |
+| Manual → `destroy` | Real destroy plan | Skipped | Requires approval → destroys |
+
+### How it works:
+
+**Plan job** — always runs first. Uploads the Terraform configuration to TFC and creates a run. For pull requests and manual `plan` operations the run is speculative (preview only, can never be applied). For `apply` and `destroy` operations the run is real and sits waiting for confirmation.
+
+**Apply / Destroy jobs** — both depend on the `plan` job and reuse the same TFC run via its `run_id`. They will not start until a reviewer manually approves the `tf-apply` environment in GitHub. The reviewer can check the plan summary written to the workflow run's Summary tab before approving.
+
+**Approval gate** — configured via a GitHub environment named `tf-apply`. Set it up under **Settings → Environments → tf-apply → Required reviewers**.
+
+### Plan summary:
+
+Every workflow run writes a Terraform plan summary to the GitHub Actions **Summary** tab showing resources to add, change, and destroy, plus a direct link to the full plan in Terraform Cloud.
+
+### Running manually:
+
+Go to **Actions → 👷 Terraform Build & Destroy → Run workflow** and select the operation:
+
+- `plan` — preview changes without applying
+- `apply` — plan then apply (requires approval)
+- `destroy` — plan the destruction then destroy (requires approval)
+
+---
+
 ## Usage:
 
 ### Deploy:
