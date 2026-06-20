@@ -1,4 +1,4 @@
-name: "Terraform"
+name: "🏗️ Terraform"
 
 on:
   pull_request:
@@ -92,6 +92,7 @@ jobs:
           comment: "Apply run triggered from GitHub Actions by ${{ github.actor }} (${{ github.sha }})"
 
   destroy:
+    needs: plan
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'destroy'
     name: "Terraform Destroy"
     runs-on: ubuntu-latest
@@ -110,7 +111,7 @@ jobs:
           directory: ${{ env.CONFIG_DIRECTORY }}
 
       - name: Create Destroy Run
-        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.2
         id: destroy-run
         with:
           workspace: ${{ env.TF_WORKSPACE }}
