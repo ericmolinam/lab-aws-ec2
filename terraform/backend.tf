@@ -4,7 +4,7 @@ terraform {
   cloud {
     organization = "emolinam5"
     workspaces {
-      name = "eus2-backend-dev"
+      name = "lab-ec2"
     }
   }
 
