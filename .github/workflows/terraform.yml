@@ -1,4 +1,4 @@
-name: "🏗️ Terraform"
+name: "🚜👷 Build & Destroy 🚧🏗️"
 
 on:
   pull_request:
@@ -36,10 +36,10 @@ jobs:
     outputs:
       run_id: ${{ steps.plan-run.outputs.run_id }}
     steps:
-      - name: Checkout
+      - name: ⬇️ Checkout
         uses: actions/checkout@v4
 
-      - name: Upload Configuration
+      - name: 📤 Upload Configuration
         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
         id: plan-upload
         with:
@@ -47,7 +47,7 @@ jobs:
           directory: ${{ env.CONFIG_DIRECTORY }}
           speculative: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.operation != 'apply') }}
 
-      - name: Create Plan Run
+      - name: 📝 Create Plan Run
         uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.2
         id: plan-run
         with:
@@ -56,13 +56,13 @@ jobs:
           plan_only: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.operation != 'apply') }}
           is_destroy: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'destroy' }}
 
-      - name: Get Plan Output
+      - name: 📝 Get Plan Output
         uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.0.0
         id: plan-output
         with:
           plan: ${{ fromJSON(steps.plan-run.outputs.payload).data.relationships.plan.data.id }}
 
-      - name: Plan Summary
+      - name: 📝 Plan Summary
         run: |
           echo "## Terraform Plan Output" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -85,7 +85,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Apply
+      - name: ⬇️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 🚀 Apply
         uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
         id: apply
         with:
@@ -101,17 +104,17 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: Checkout
+      - name: ⬇️ Checkout
         uses: actions/checkout@v4
 
-      - name: Upload Configuration
+      - name: 📤 Upload Configuration
         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
         id: destroy-upload
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           directory: ${{ env.CONFIG_DIRECTORY }}
 
-      - name: Create Destroy Run
+      - name: 🔥 Create Destroy Run
         uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.2
         id: destroy-run
         with:
@@ -119,7 +122,7 @@ jobs:
           configuration_version: ${{ steps.destroy-upload.outputs.configuration_version_id }}
           is_destroy: true
 
-      - name: Apply Destroy
+      - name: 🔥 Apply Destroy
         uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
         if: fromJSON(steps.destroy-run.outputs.payload).data.attributes.actions.IsConfirmable
         id: apply-destroy

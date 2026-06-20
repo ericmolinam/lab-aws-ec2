@@ -1,4 +1,4 @@
-name: 🕵️ Scan Security Code
+name: 🕵️ Checkov Security Scan
 
 on:
   pull_request:
