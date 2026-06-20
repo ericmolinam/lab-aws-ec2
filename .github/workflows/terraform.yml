@@ -43,7 +43,7 @@ jobs:
       - name: ⬇️ Checkout
         uses: actions/checkout@v4
 
-      - name: 📤 Upload Configuration
+      - name: 📤 Upload configuration to HCP
         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
         id: plan-upload
         with:
@@ -51,7 +51,7 @@ jobs:
           directory: ${{ env.CONFIG_DIRECTORY }}
           speculative: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'plan') }}
 
-      - name: 📝 Create Plan Run
+      - name: 📝 Create plan run
         uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.2
         id: plan-run
         with:
@@ -60,13 +60,13 @@ jobs:
           plan_only: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'plan') }}
           is_destroy: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.operation == 'destroy' }}
 
-      - name: 📝 Get Plan Output
+      - name: 📝 Get plan output
         uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.0.0
         id: plan-output
         with:
           plan: ${{ fromJSON(steps.plan-run.outputs.payload).data.relationships.plan.data.id }}
 
-      - name: 📝 Plan Summary
+      - name: 📝 Plan summary
         run: |
           echo "## Terraform Plan Output" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -108,7 +108,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: 🔥 Apply Destroy
+      - name: 🔥 Destroy
         uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
         id: apply-destroy
         with:

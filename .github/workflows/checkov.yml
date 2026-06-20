@@ -32,6 +32,6 @@ jobs:
           quiet: true # display only failed checks
           soft_fail: true # if true, do not return an error code if there are failed checks
 
-      - name: 📝 Show results in Summary
+      - name: 📝 Show results in summary
         if: always()
         run: cat github_failed_only >> $GITHUB_STEP_SUMMARY
