@@ -32,7 +32,7 @@ Terraform Cloud (lab-ec2)
 
 ---
 
-## Authentication: OIDC dynamic provider credentials:
+## Authentication w/ OIDC dynamic provider credentials:
 
 This project uses Terraform Cloud's native OIDC integration to authenticate to AWS without long-lived credentials. The setup follows the [AWS APN blog guide](https://aws.amazon.com/blogs/apn/simplify-and-secure-terraform-workflows-on-aws-with-dynamic-provider-credentials/).
 
