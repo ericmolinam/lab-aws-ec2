@@ -194,7 +194,7 @@ chmod 400 private_key.pem
 2. Connect:
 
 ```bash
-ssh -i private_key.pem ec2-user@$(terraform output -raw public_ip)
+ssh -i private_key.pem ubuntu@$(terraform output -raw public_ip)
 ```
 
 ### Destroy:
